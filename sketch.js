@@ -6,7 +6,7 @@
 // p5.js reference: https://p5js.org/reference/
 
 // Database (CHANGE THESE!)
-const GROUP_NUMBER   = 43;      // Add your group number here as an integer (e.g., 2, 3)
+const GROUP_NUMBER   = "43-TP";      // Add your group number here as an integer (e.g., 2, 3)
 const BAKE_OFF_DAY   = false;  // Set to 'true' before sharing during the bake-off day
 
 // Target and grid properties (DO NOT CHANGE!)
@@ -43,7 +43,7 @@ class Target
   }
 }
 
-class square {
+class square_box {
   // Center coordinates of the square
   constructor(x, y, w) {
     this.x = x;
@@ -57,7 +57,7 @@ bounds_squares = []
 function initBoundSquares(w) {
   for ( i = 0; i < 18; i++) {
     target = getTargetBounds(i)
-    next_s = new square(target.x, target.y, w);
+    next_s = new square_box(target.x, target.y, w);
     bounds_squares.push(next_s)
   }
 }
@@ -92,6 +92,52 @@ function setup()
   drawUserIDScreen();        // draws the user start-up screen (student ID and display size)
 }
 
+// Explains the target colors (captions)
+function label() {
+
+
+
+
+  stroke(color(255,255,255));
+  strokeWeight(8);
+  fill(color(0,255,0));
+  circle(width/2 + 5 * TARGET_SIZE, height/8, TARGET_SIZE);
+
+  stroke(color(255,255,255));
+  strokeWeight(8);
+  fill(color(255,0,0));
+  circle(width/2 + TARGET_SIZE, height/8 + 2 * PPCM, TARGET_SIZE);
+
+
+  fill(color(255,255,255));
+  textAlign(CENTER, CENTER);
+  fill(color(0,255,0))
+  text("2X", width/2 + 5 * TARGET_SIZE, height/8);
+  noStroke();
+  textFont("Arial", 24);
+
+
+  stroke(color(255,255,255));
+  strokeWeight(8);
+  fill(color(0,255,0));
+  circle(width/2 + TARGET_SIZE, height/8, TARGET_SIZE);
+
+
+  noStroke();
+  textFont("Arial", 20); 
+  fill(color(255,255,255));
+  textAlign(LEFT, CENTER);
+  text("DOUBLE TARGET", width/2 + 5.7 * TARGET_SIZE, height/8);
+
+  text("TARGET", width/2 + 1.7 * TARGET_SIZE, height/8);
+
+  text("NEXT TARGET", width/2 + 1.7 * TARGET_SIZE, height/8 + 2 * PPCM);
+
+
+
+  textFont("Arial", 18); 
+}
+
 // Runs every frame and redraws the screen
 function draw()
 {
@@ -111,7 +157,10 @@ function draw()
     
     // Draw the user input area
     drawInputArea()
-
+    
+    // Draw the captions
+    label();
+    
     // Draw the virtual cursor
     let x = map(mouseX, inputArea.x, inputArea.x + inputArea.w, 0, width)
     let y = map(mouseY, inputArea.y, inputArea.y + inputArea.h, 0, height)
@@ -308,10 +357,10 @@ function drawTarget(i)
   // Check whether this target is the target the user should be trying to select
   if (trials[current_trial] === i) 
   { 
-    fill(color(255,0,0)); 
+    fill(color(0,255,0)); 
     // Highlights the target the user should be trying to select
     // with a white border
-    stroke(color(255,255,0));
+    stroke(color(255,255,255));
     strokeWeight(8);
     circle(target.x, target.y, target.w);
     
@@ -320,13 +369,19 @@ function drawTarget(i)
     //
   // Next target
     if (trials[current_trial + 1] === i) {
-      noStroke(); 
-      fill(color(255,255,255));                 
-      circle(next.x, next.y, next.w-40);
+      text("2x", getTargetBounds(i).x - 10, getTargetBounds(i).y + 10);
+      textAlign(CENTER);
+      noStroke();
+      textFont("Arial", 24);
     }
       
-    fill(color(255,255,0));   
-    line(target.x, target.y, next.x, next.y);
+    fill(color(0,255,0));
+    // Draw a line
+    if (trials[current_trial] !== trials[current_trial + 1]) {
+      stroke(255, 255, 255);
+      strokeWeight(8);
+      line(target.x, target.y, next.x, next.y);
+    }
       
   }
   // Does not draw a border if this is not the target the user
@@ -334,17 +389,38 @@ function drawTarget(i)
   else {
     noStroke();
     fill(color(0,41,110));
+    stroke(color(255,255,255));
+    strokeWeight(2);
     circle(target.x, target.y, target.w);
     
     if (trials[current_trial + 1] === i) {
 
-      fill(color(255,255,255));                 
-      circle(next.x, next.y, next.w-40);
+      fill(color(255,0,0));                 
+      circle(next.x, next.y, next.w);
     }
-  }           
-
-  // Draws the target
-                  
+  }
+    // Draws the target in the box
+    let box_x = map(target.x, 0, width, inputArea.x, inputArea.x + inputArea.w);
+    let box_y = map(target.y, 0, height, inputArea.y, inputArea.y + inputArea.h);
+    
+    //if (trials[current_trial + 1] === i && trials[current_trial] === i) {
+      //stroke(color(255,255,255));
+      //text("2x", box_x, box_y);
+      //textAlign(CENTER);
+      //textFont("Arial", 24);
+    //}
+  
+    rectMode(CENTER);
+    square(box_x, box_y, target.w * (inputArea.w/height));
+    rectMode(CORNER);
+  
+    if ((trials[current_trial] === trials[current_trial + 1]) && (i === trials[current_trial])) {
+        fill(color(255,255,255));
+        textAlign(CENTER,CENTER);
+        text("2X", box_x, box_y + 0.1*PPCM);
+        noStroke();
+      textFont("Arial", 24);
+    }
 }
 
 // Returns the location and size of a given target
